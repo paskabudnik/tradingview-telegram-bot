@@ -2,7 +2,7 @@ import os
 from flask import Flask, request
 import requests
 from dotenv import load_dotenv
-from db import init_db, add_user, get_all_users
+from db import init_db, add_user, get_all_users  # предполагается, что у тебя есть этот модуль
 
 load_dotenv()
 
@@ -11,7 +11,6 @@ WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET")
 
 app = Flask(__name__)
 
-# Отправка сообщения в Telegram
 def send_message(chat_id, text):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     payload = {
@@ -21,9 +20,11 @@ def send_message(chat_id, text):
     }
     requests.post(url, json=payload)
 
-# Telegram webhook
-@app.route(f"/bot{BOT_TOKEN}", methods=["POST"])
-def telegram():
+@app.route("/bot/<token>", methods=["POST"])
+def telegram(token):
+    if token != BOT_TOKEN:
+        return {"error": "unauthorized"}, 403
+
     data = request.get_json()
     msg = data.get("message", {})
     chat = msg.get("chat", {})
@@ -39,7 +40,6 @@ def telegram():
 
     return {"ok": True}
 
-# TradingView webhook
 @app.route("/webhook", methods=["POST"])
 def tradingview_webhook():
     if request.args.get("secret") != WEBHOOK_SECRET:
@@ -62,5 +62,5 @@ def root():
 
 if __name__ == "__main__":
     init_db()
-    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+   # app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
 
