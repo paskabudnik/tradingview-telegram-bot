@@ -60,7 +60,14 @@ def tradingview_webhook():
 def root():
     return "✅ Бот работает!"
 
+# Временный маршрут для просмотра всех пользователей
+@app.route("/users", methods=["GET"])
+def list_users():
+    users = get_all_users()
+    return {"users": users}
+
 if __name__ == "__main__":
     init_db()
-   # app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    # Локальный запуск для разработки (раскомментируй если нужно)
+    # app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
 
